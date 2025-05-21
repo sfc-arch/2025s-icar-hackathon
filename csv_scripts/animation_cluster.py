@@ -3,10 +3,8 @@ import folium
 from folium.plugins import TimestampedGeoJson
 import random
 
-df = pd.read_csv("output/vehicle_objects_10min_nodimensions.csv")
-df = df[
-    (df['classification'] == 'VEHICLE')
-]
+df = pd.read_csv("csv/10min_1_2_cluster.csv")
+df = df[(df['classification'] == 'VEHICLE')]
 df = df.dropna(subset=['map_matched_lat', 'map_matched_lon', 'timestamp'])
 
 df['timestamp'] = pd.to_datetime(df['timestamp'])
@@ -15,12 +13,12 @@ df['time_str'] = df['timestamp'].dt.strftime('%Y-%m-%dT%H:%M:%S')
 def random_color():
     return "#{:06x}".format(random.randint(0, 0xFFFFFF))
 
-group_ids = df['group_id'].dropna().unique()
-group_color_map = {gid: random_color() for gid in group_ids}
+cluster_id_predicteds = df['cluster_id_predicted'].dropna().unique()
+group_color_map = {gid: random_color() for gid in cluster_id_predicteds}
 
 features = []
-for (sensor, group_id), group in df.groupby(['sensor_id', 'group_id']):
-    color = group_color_map.get(group_id, "#999999")  # fallback color for NaN
+for (sensor, cluster_id_predicted), group in df.groupby(['sensor_id', 'cluster_id_predicted']):
+    color = group_color_map.get(cluster_id_predicted, "#999999")  # fallback color for NaN
     for _, row in group.iterrows():
         features.append({
             "type": "Feature",
@@ -30,12 +28,12 @@ for (sensor, group_id), group in df.groupby(['sensor_id', 'group_id']):
             },
             "properties": {
                 "time": row['time_str'],
-                "popup": f"{sensor} - ID {row['id']}",
+                "popup": f"{sensor} - ID {row['id']} - Cluster {cluster_id_predicted}",
                 "icon": "circle",
                 "iconstyle": {
                     "fillColor": color,
                     "fillOpacity": 1,
-                    "stroke": "false",
+                    "stroke": False,
                     "radius": 5
                 }
             }
@@ -61,4 +59,4 @@ TimestampedGeoJson(
     time_slider_drag_update=True
 ).add_to(m)
 
-m.save("output/plot_in_animation_vista1.html")
+m.save("output/plot_by_cluster.html")
