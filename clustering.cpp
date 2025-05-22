@@ -100,8 +100,8 @@ void write_csv(const std::string& out_path, const std::vector<std::string>& head
 }
 
 int main() {
-    const std::string input_path = "csv/10min_1_2.csv";
-    const std::string output_path = "csv/10min_1_2_cluster.csv";
+    const std::string input_path = "csv/vehicle_objects_nodimensions.csv";
+    const std::string output_path = "csv/vehicle_objects_nodimensions_cluster.csv";
 
     std::vector<std::string> header;
     auto vehicles = load_csv(input_path, header);
